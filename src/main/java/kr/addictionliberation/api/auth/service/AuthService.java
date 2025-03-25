@@ -64,8 +64,22 @@ public class AuthService {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(loginRequestDto.getEmail(), loginRequestDto.getPassword())
             );
-            String jwt = jwtTokenProvider.createAccessToken(authentication);
-            return TokenResponseDto.builder().accessToken(jwt).build();
+            // Access Token 생성
+            String accessToken = jwtTokenProvider.createAccessToken(authentication);
+            // Refresh Token 생성
+            String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
+            
+            // Refresh Token을 DB에 저장 (User 엔티티에)
+            AuthEntity user = authRepository.findByEmail(loginRequestDto.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + loginRequestDto.getEmail()));
+            user.setRefreshToken(refreshToken);
+            authRepository.save(user); // 변경사항 저장
+            
+            return TokenResponseDto.builder()
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken) // Refresh Token도 함께 반환
+                    .build();
+            
         } catch (BadCredentialsException e) {
             throw new BadCredentialsException("Invalid username or password");
         } catch (UsernameNotFoundException e){

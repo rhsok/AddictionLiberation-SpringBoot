@@ -41,7 +41,8 @@ public class AuthEntity implements UserDetails { // Spring Security UserDetails 
 
     @Column(nullable = false, length = 2) 
     // 사용자 언어 설정 (예: "ko", "en", "ja")
-    private String language; 
+    @Builder.Default //  @Builder를 사용할 때 기본값 설정
+    private String language = "ko"; // 기본값 "ko"로 설정
 
     // (Optional) Add other user fields like name, nickname, etc.
     
