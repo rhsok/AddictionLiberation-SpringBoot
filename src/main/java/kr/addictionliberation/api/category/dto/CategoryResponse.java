@@ -1,4 +1,3 @@
-// src/main/java/kr/addictionliberation/api/category/dto/CategoryResponse.java
 package kr.addictionliberation.api.category.dto;
 
 import lombok.Getter;

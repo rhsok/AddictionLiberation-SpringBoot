@@ -1,9 +1,5 @@
 package kr.addictionliberation.api.config;
 
-import kr.addictionliberation.api.jwt.JwtAuthenticationEntryPoint;
-import kr.addictionliberation.api.jwt.JwtAuthenticationFilter;
-import kr.addictionliberation.api.jwt.JwtTokenProvider;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,6 +12,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import kr.addictionliberation.api.jwt.JwtAuthenticationEntryPoint;
+import kr.addictionliberation.api.jwt.JwtAuthenticationFilter;
+import kr.addictionliberation.api.jwt.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
 
 @Configuration // 이 클래스가 Spring 설정 클래스임을 나타냄
 @EnableWebSecurity // Spring Security 활성화
@@ -29,8 +31,10 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(); // 비밀번호 암호화를 위한 BCryptPasswordEncoder 빈 등록
     }
+
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -41,7 +45,16 @@ public class SecurityConfig {
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 세션 사용 안 함 (JWT는 stateless)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/signup", "/api/auth/login","/api/auth/refresh").permitAll() // 회원가입, 로그인, refresh API는 인증 없이 허용
+                        .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/refresh").permitAll() // 회원가입,
+                                                                                                                 // 로그인,
+                                                                                                                 // refresh
+                                                                                                                 // API는
+                                                                                                                 // 인증
+                                                                                                                 // 없이
+                                                                                                                 // 허용
+                        .requestMatchers(new AntPathRequestMatcher("/v3/api-docs/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/swagger-ui/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/swagger-ui.html")).permitAll()
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
@@ -49,7 +62,8 @@ public class SecurityConfig {
                 )
 
                 // JWT 인증 필터 추가 (UsernamePasswordAuthenticationFilter 전에 실행)
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
+                        UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

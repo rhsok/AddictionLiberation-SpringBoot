@@ -1,15 +1,24 @@
 package kr.addictionliberation.api.post.entity;
 
-import kr.addictionliberation.api.category.entity.Category;
-
-import kr.addictionliberation.api.post.entity.PostType;
-import kr.addictionliberation.api.user.entity.User; // User 엔티티 import
-import lombok.Getter;
-import lombok.Setter;
-
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+
+import org.hibernate.annotations.UuidGenerator;
+
+import jakarta.persistence.CascadeType; // User 엔티티 import
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import kr.addictionliberation.api.category.entity.Category;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "post")
@@ -17,11 +26,12 @@ import java.util.List;
 @Setter
 public class Post {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @UuidGenerator // UUID 자동 생성 (Hibernate 6+)
+    @Column(length = 36)
     private String id;
 
-    @ManyToOne
-    @JoinColumn(name = "postTypeId")
+    @ManyToOne(fetch = FetchType.LAZY) // PostType은 필요할 때만 로딩 (LAZY)
+    @JoinColumn(name = "post_type_id")
     private PostType postType;
 
     @Column(name = "created_at")
@@ -31,11 +41,7 @@ public class Post {
     private List<PostContent> contents;
 
     @ManyToMany
-    @JoinTable(
-            name = "post_category",
-            joinColumns = @JoinColumn(name = "post_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id")
-    )
+    @JoinTable(name = "post_category", joinColumns = @JoinColumn(name = "post_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     private List<Category> categories;
 
     @Column(name = "is_main")

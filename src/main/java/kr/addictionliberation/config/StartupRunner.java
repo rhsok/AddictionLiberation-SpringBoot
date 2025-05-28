@@ -1,4 +1,4 @@
-package kr.addictionliberation.api.config;
+package kr.addictionliberation.config;
 
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

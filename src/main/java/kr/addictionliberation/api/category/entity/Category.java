@@ -1,8 +1,15 @@
 package kr.addictionliberation.api.category.entity;
 
-import jakarta.persistence.*;
 import java.util.List;
-import kr.addictionliberation.api.post.entity.Post; 
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import kr.addictionliberation.api.post.entity.Post;
 
 @Entity
 @Table(name = "categories") // 데이터베이스 테이블 이름
@@ -18,8 +25,7 @@ public class Category {
     private String description;
 
     @ManyToMany(mappedBy = "categories") // Post 엔티티의 categories 필드에 의해 매핑됨
-    private List<Post> posts;  //Post는 임포트 해야됨.
-
+    private List<Post> posts; // Post는 임포트 해야됨.
 
     public Integer getId() {
         return id;
